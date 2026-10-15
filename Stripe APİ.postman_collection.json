@@ -1,0 +1,513 @@
+{
+  "info": {
+    "_postman_id": "28af1f2f-2702-4a09-a056-32c3dd81d24a",
+    "name": "Stripe APİ",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51695982"
+  },
+  "item": [
+    {
+      "name": "Auth & Setup",
+      "item": [
+        {
+          "name": "Check API Connection (Get Balance)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 - API connection is valid\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/balance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "balance"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Positive",
+          "item": [
+            {
+              "name": "Create a Customer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Customer created successfully (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    var jsonData = pm.response.json();",
+                      "",
+                      "    ",
+                      "    pm.environment.set(\"customerId\", jsonData.id);",
+                      "    pm.expect(jsonData.id).to.be.a('string');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "name",
+                      "value": "QA Automation User",
+                      "type": "text",
+                      "uuid": "1a87a158-2452-4dd5-a13b-f4e54c8be30e"
+                    },
+                    {
+                      "key": "email",
+                      "value": "qa.user{{$randomInt}}@test.com",
+                      "type": "text",
+                      "uuid": "fce56bcf-d012-427e-8e58-3065eadfb324"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/customers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "customers"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Single Customer by ID",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 and correct customer is fetched\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    var jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.id).to.eql(pm.environment.get(\"customerId\"));",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/customers/{{customerId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "customers",
+                    "{{customerId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative",
+          "item": [
+            {
+              "name": "Create Customer with Invalid Email",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 400 Bad Request\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "    var jsonData = pm.response.json();",
+                      "    pm.expect(jsonData.error).to.exist;",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "name",
+                      "value": "Invalid user",
+                      "type": "text",
+                      "uuid": "10a6bd0f-a148-4a62-b730-9cb48b27623b"
+                    },
+                    {
+                      "key": "email",
+                      "value": "not-an-email-format",
+                      "type": "text",
+                      "uuid": "0630c7f1-cea2-41a0-97ae-3a17095928c8"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/customers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "customers"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Positive",
+          "item": [
+            {
+              "name": "Create a Product",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Product created successfully (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    var jsonData = pm.response.json();",
+                      "",
+                      "    pm.environment.set(\"productId\", jsonData.id);",
+                      "    pm.expect(jsonData.id).to.be.a('string');",
+                      "    pm.expect(jsonData.name).to.eql(\"QA Automation Course\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "name",
+                      "value": "QA Automation Course",
+                      "type": "text",
+                      "uuid": "9a32c912-cb51-4f91-a2b7-aaf026857d63"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get all products",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 and products list is returned\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    var jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.data).to.be.an('array');",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Charges / Payments",
+      "item": [
+        {
+          "name": "Positive",
+          "item": [
+            {
+              "name": "Create a Charge",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Payment processed successfully (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    var jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.paid).to.eql(true);",
+                      "    pm.expect(jsonData.status).to.eql(\"succeeded\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "amount",
+                      "value": "2000",
+                      "type": "text",
+                      "uuid": "ea234acd-42d1-4f45-856d-85ed54773947"
+                    },
+                    {
+                      "key": "currency",
+                      "value": "usd",
+                      "type": "text",
+                      "uuid": "d30149c8-eea7-46fa-9a1e-00a9c56ebf0c"
+                    },
+                    {
+                      "key": "source",
+                      "value": "tok_visa",
+                      "type": "text",
+                      "uuid": "57f75d64-dde5-45c5-806a-858508a7df6d"
+                    },
+                    {
+                      "key": "description",
+                      "value": "QA Course Payment Test",
+                      "type": "text",
+                      "uuid": "d722b1c1-16ed-424b-98e3-7329330c4f95"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/charges",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "charges"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Negative",
+          "item": [
+            {
+              "name": "Create Charge with Declined Card",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Payment is declined and returns 402\", function () {",
+                      "    pm.response.to.have.status(402); // Kart xətaları üçün standart status kodudur",
+                      "    var jsonData = pm.response.json();",
+                      "",
+                      "    pm.expect(jsonData.error.code).to.eql(\"card_declined\");",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "amount",
+                      "value": "5000",
+                      "type": "text",
+                      "uuid": "ea234acd-42d1-4f45-856d-85ed54773947"
+                    },
+                    {
+                      "key": "currency",
+                      "value": "usd",
+                      "type": "text",
+                      "uuid": "d30149c8-eea7-46fa-9a1e-00a9c56ebf0c"
+                    },
+                    {
+                      "key": "source",
+                      "value": "tok_chargeDeclined",
+                      "type": "text",
+                      "uuid": "57f75d64-dde5-45c5-806a-858508a7df6d"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Failed payment tes",
+                      "type": "text",
+                      "uuid": "d722b1c1-16ed-424b-98e3-7329330c4f95"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/charges",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "charges"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
